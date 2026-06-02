@@ -117,6 +117,17 @@ app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapFallbackToFile("index.html");
 
-await SeedData.EnsureSeededAsync(app.Services);
+try
+{
+    await SeedData.EnsureSeededAsync(app.Services);
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Database migration/seed failed during startup.");
+    if (app.Environment.IsDevelopment())
+    {
+        throw;
+    }
+}
 
 app.Run();

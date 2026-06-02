@@ -37,7 +37,10 @@ public class SalonDbContext(DbContextOptions<SalonDbContext> options, ICurrentTe
         modelBuilder.Entity<TenantSetting>().HasIndex(x => x.TenantId).IsUnique();
         modelBuilder.Entity<TenantSetting>().OwnsOne(x => x.ReminderSettings, owned =>
         {
-            owned.ToJson();
+            if (Database.ProviderName?.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                owned.ToJson();
+            }
         });
         modelBuilder.Entity<AppUser>().HasIndex(x => new { x.TenantId, x.Username }).IsUnique();
         modelBuilder.Entity<Customer>().HasIndex(x => new { x.TenantId, x.BranchId, x.CustomerNumber }).IsUnique();

@@ -18,9 +18,20 @@ builder.Services.AddScoped<PasswordHasher<AppUser>>();
 
 builder.Services.AddDbContext<SalonDbContext>(options =>
 {
+    var provider = builder.Configuration["DatabaseProvider"] ?? "Postgres";
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Host=localhost;Port=5432;Database=quicksalon;Username=postgres;Password=postgres";
-    options.UseNpgsql(connectionString);
+        ?? (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase)
+            ? "Server=(localdb)\\MSSQLLocalDB;Database=quicksalon;Trusted_Connection=True;TrustServerCertificate=True;"
+            : "Host=localhost;Port=5432;Database=quicksalon;Username=postgres;Password=postgres");
+
+    if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
 });
 
 builder.Services.AddControllers().AddJsonOptions(options =>

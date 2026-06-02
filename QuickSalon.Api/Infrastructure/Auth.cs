@@ -131,7 +131,14 @@ public static class SeedData
         var db = scope.ServiceProvider.GetRequiredService<SalonDbContext>();
         var passwordHasher = scope.ServiceProvider.GetRequiredService<PasswordHasher<AppUser>>();
 
-        await db.Database.MigrateAsync();
+        if (db.Database.ProviderName?.Contains("SqlServer", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            await db.Database.EnsureCreatedAsync();
+        }
+        else
+        {
+            await db.Database.MigrateAsync();
+        }
 
         if (await db.Tenants.AnyAsync())
         {

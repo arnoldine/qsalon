@@ -679,12 +679,19 @@ th {
   position: absolute;
   top: 10px;
   right: -14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: #fff;
   color: #412312;
   border-radius: 999px;
   padding: 0.35rem 0.8rem;
   font-size: 0.8rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+}
+
+.stats-chip-icon {
+  color: #b2592f;
 }
 
 .testimonial-card {
@@ -728,8 +735,10 @@ th {
 }
 
 .stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
   color: #b2592f;
-  letter-spacing: 0.06em;
 }
 
 .feature-list {

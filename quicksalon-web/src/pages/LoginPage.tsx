@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChart2, CalendarCheck, Loader2, Lock, User, Users } from 'lucide-react'
+import { BadgeCheck, BarChart2, CalendarCheck, Loader2, Lock, Star, User, Users } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { QuickSalonLogo } from '../components/QuickSalonLogo'
 import { useAuth } from '../context/AuthContext'
@@ -48,11 +48,20 @@ export function LoginPage() {
               alt="Modern salon interior"
               className="hero-image"
             />
-            <div className="stats-chip">⭐ Trusted by 10,000+ salons worldwide</div>
+            <div className="stats-chip">
+              <BadgeCheck size={14} className="stats-chip-icon" />
+              Trusted by 10,000+ salons worldwide
+            </div>
             <article className="testimonial-card">
               <div className="testimonial-header">
                 <div className="avatar-circle">S.M.</div>
-                <span className="stars">★★★★★</span>
+                <span className="stars" aria-label="Five star rating">
+                  <Star size={12} fill="currentColor" />
+                  <Star size={12} fill="currentColor" />
+                  <Star size={12} fill="currentColor" />
+                  <Star size={12} fill="currentColor" />
+                  <Star size={12} fill="currentColor" />
+                </span>
               </div>
               <p>Bookings are up 40% since switching to QuickSalon</p>
               <strong>Sarah M. - Glow Studio, Austin TX</strong>
@@ -87,7 +96,7 @@ export function LoginPage() {
 
       <section className="login-right-panel">
         <form className="login-card" onSubmit={onSubmit}>
-          <h2>Welcome back 👋</h2>
+          <h2>Welcome back</h2>
           <p>Sign in to your salon dashboard</p>
 
           <label className="login-field">

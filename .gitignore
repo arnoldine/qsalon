@@ -1,0 +1,15 @@
+# Build outputs
+**/bin/
+**/obj/
+quicksalon-web/dist/
+quicksalon-web/node_modules/
+
+# Editor and OS files
+.vs/
+.vscode/
+Thumbs.db
+Desktop.ini
+
+# Local environment overrides
+.env
+.env.*

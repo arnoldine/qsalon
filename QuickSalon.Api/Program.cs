@@ -140,25 +140,17 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-// Fallback: serve index.html for all unmatched routes (SPA routing)
-app.MapGet("/{**path}", async context =>
+// SPA fallback — serves index.html for any unmatched route (client-side routing)
+// Uses StaticFileOptions so we can attach no-cache headers to every index.html response.
+app.MapFallbackToFile("index.html", new StaticFileOptions
 {
-    var path = context.Request.Path.Value ?? "";
-    if (!path.StartsWith("/api") && !path.StartsWith("/assets"))
+    OnPrepareResponse = ctx =>
     {
-        context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
-        context.Response.Headers["Pragma"] = "no-cache";
-        context.Response.Headers["Expires"] = "0";
-        context.Response.ContentType = "text/html";
-        var wwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html");
-        if (File.Exists(wwwroot))
-        {
-            await context.Response.SendFileAsync(wwwroot);
-            return;
-        }
+        ctx.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        ctx.Context.Response.Headers["Pragma"] = "no-cache";
+        ctx.Context.Response.Headers["Expires"] = "0";
     }
-    context.Response.StatusCode = 404;
-}).ExcludeFromDescription();
+});
 
 try
 {

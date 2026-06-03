@@ -13,6 +13,17 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Polyfill crypto.randomUUID for HTTP (non-secure) contexts -->
+    <script>
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID !== 'function') {
+        crypto.randomUUID = function () {
+          return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, function (c) {
+            var n = parseInt(c, 10);
+            return (n ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (n / 4)))).toString(16);
+          });
+        };
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

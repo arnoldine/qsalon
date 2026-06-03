@@ -7,7 +7,7 @@ using QuickSalon.Api.Infrastructure;
 
 namespace QuickSalon.Api.Controllers;
 
-[Authorize(Roles = "Admin,SystemAdmin,SalonOwner")]
+[Authorize]
 public class SettingsController(SalonDbContext db, ICurrentTenant currentTenant, IAuditService audit) : BaseApiController(currentTenant)
 {
     [HttpGet("tenant")]
@@ -37,6 +37,7 @@ public class SettingsController(SalonDbContext db, ICurrentTenant currentTenant,
     }
 
     [HttpPut("tenant")]
+    [Authorize(Roles = "Admin,SalonOwner")]
     public async Task<ActionResult<TenantSetting>> UpsertTenantSettings([FromBody] TenantSettingRequest request, CancellationToken cancellationToken)
     {
         var settings = await db.TenantSettings.FirstOrDefaultAsync(x => x.TenantId == TenantId, cancellationToken);

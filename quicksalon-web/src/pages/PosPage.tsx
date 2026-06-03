@@ -194,10 +194,10 @@ export function PosPage() {
     balance,
     currency: settings.defaultCurrency || 'GHS',
     salonName: settings.salonName || 'Salon',
-    salonPhone: settings.phone,
-    salonAddress: settings.address,
-    salonEmail: settings.email,
-    receiptFooter: settings.receiptFooter,
+    salonPhone: settings.phone ?? undefined,
+    salonAddress: settings.address ?? undefined,
+    salonEmail: settings.email ?? undefined,
+    receiptFooter: settings.receiptFooter ?? undefined,
     status: selected?.status ?? '',
   }
 

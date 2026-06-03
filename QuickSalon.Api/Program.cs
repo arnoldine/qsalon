@@ -48,7 +48,12 @@ builder.Services.AddCors(options =>
 
             policy.WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                // Allow any zrok tunnel subdomain — URL rotates on each restart
+                .SetIsOriginAllowed(origin =>
+                    allowedOrigins.Contains(origin) ||
+                    origin.EndsWith(".shares.zrok.io", StringComparison.OrdinalIgnoreCase) ||
+                    origin.EndsWith(".zrok.io", StringComparison.OrdinalIgnoreCase));
         });
 });
 

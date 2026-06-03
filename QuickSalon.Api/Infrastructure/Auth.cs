@@ -140,6 +140,29 @@ public static class SeedData
             await db.Database.MigrateAsync();
         }
 
+        // Seed platform SystemAdmin (runs once, TenantId = Guid.Empty = platform level)
+        if (!await db.Users.IgnoreQueryFilters().AnyAsync(x => x.Username == "superadmin"))
+        {
+            var sysAdminUser = new AppUser
+            {
+                TenantId = Guid.Empty,
+                BranchId = Guid.Empty,
+                FullName = "Platform Administrator",
+                Username = "superadmin",
+                Email = "superadmin@quicksalon.platform",
+                PasswordHash = string.Empty,
+                IsActive = true
+            };
+            sysAdminUser.PasswordHash = passwordHasher.HashPassword(sysAdminUser, "SuperAdmin@123");
+            db.Users.Add(sysAdminUser);
+
+            // SystemAdmin role is not tenant-scoped (TenantId = Guid.Empty)
+            var sysRole = new Role { TenantId = Guid.Empty, Name = "SystemAdmin", Description = "Platform administrator" };
+            db.Roles.Add(sysRole);
+            db.UserRoles.Add(new UserRole { UserId = sysAdminUser.Id, RoleId = sysRole.Id });
+            await db.SaveChangesAsync();
+        }
+
         if (await db.Tenants.AnyAsync())
         {
             return;

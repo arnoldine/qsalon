@@ -22,7 +22,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
   </ItemGroup>
 
-  <Target Name="BuildFrontend" BeforeTargets="ComputeFilesToPublish">
+  <Target Name="BuildFrontend" BeforeTargets="ComputeFilesToPublish" Condition="'$(SkipFrontendBuild)' != 'true'">
     <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
     <ItemGroup>
       <SpaDistFiles Include="$(SpaRoot)dist\**\*" />

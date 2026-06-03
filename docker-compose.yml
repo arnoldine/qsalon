@@ -1,0 +1,55 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: quicksalon-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quicksalon
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-QuickSalon2026!}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d quicksalon"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: quicksalon:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quicksalon-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: >
+        Host=db;Port=5432;Database=quicksalon;
+        Username=postgres;Password=${DB_PASSWORD:-QuickSalon2026!}
+      Jwt__Key: ${JWT_KEY:-CHANGE-ME-use-a-long-random-secret-at-least-32chars}
+      Jwt__Issuer: QuickSalon
+      Jwt__Audience: QuickSalonClients
+      App__CorsOrigin: http://192.168.100.10
+    ports:
+      - "80:8080"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  pgdata:
+
+networks:
+  internal:
+    driver: bridge

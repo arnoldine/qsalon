@@ -13,3 +13,7 @@ Desktop.ini
 # Local environment overrides
 .env
 .env.*
+# Docker image tarballs
+*.tar.gz
+*.tar
+.env.example

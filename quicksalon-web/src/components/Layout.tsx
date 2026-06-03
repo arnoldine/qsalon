@@ -3,15 +3,16 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
   BarChart2,
   Bell,
-  Building2,
   CalendarDays,
   GitBranch,
   LayoutDashboard,
   Package,
+  Receipt,
   Scissors,
   Settings,
   Shield,
   ShoppingCart,
+  TrendingDown,
   UserCheck,
   Users,
 } from 'lucide-react'
@@ -35,18 +36,19 @@ import type {
 } from '../types'
 
 const navItems = [
-  { label: 'Salon Dashboard', path: '/', icon: LayoutDashboard, roles: [] as string[] },
+  { label: 'Dashboard', path: '/', icon: LayoutDashboard, roles: [] as string[] },
   { label: 'Customers', path: '/customers', icon: Users, roles: ['Admin', 'Receptionist', 'BranchManager', 'SalonOwner'] },
   { label: 'Appointments', path: '/appointments', icon: CalendarDays, roles: ['Admin', 'Receptionist', 'Stylist', 'Beautician', 'BranchManager', 'SalonOwner'] },
   { label: 'Services', path: '/services', icon: Scissors, roles: ['Admin', 'BranchManager', 'SalonOwner'] },
   { label: 'Staff', path: '/employees', icon: UserCheck, roles: ['Admin', 'BranchManager', 'SalonOwner'] },
-  { label: 'POS', path: '/pos', icon: ShoppingCart, roles: ['Admin', 'Cashier', 'Receptionist', 'BranchManager', 'SalonOwner'] },
+  { label: 'POS / Sales', path: '/pos', icon: ShoppingCart, roles: ['Admin', 'Cashier', 'Receptionist', 'BranchManager', 'SalonOwner'] },
   { label: 'Inventory', path: '/inventory', icon: Package, roles: ['Admin', 'InventoryOfficer', 'BranchManager', 'SalonOwner'] },
+  { label: 'Purchases', path: '/purchases', icon: Receipt, roles: ['Admin', 'InventoryOfficer', 'BranchManager', 'SalonOwner'] },
+  { label: 'Expenses', path: '/expenses', icon: TrendingDown, roles: ['Admin', 'Cashier', 'BranchManager', 'SalonOwner'] },
   { label: 'Reports', path: '/reports', icon: BarChart2, roles: ['Admin', 'BranchManager', 'SalonOwner'] },
-  { label: 'Settings', path: '/settings', icon: Settings, roles: ['Admin', 'SystemAdmin', 'SalonOwner'] },
-  { label: 'Tenants', path: '/tenants', icon: Building2, roles: ['Admin', 'SystemAdmin'] },
-  { label: 'Branches', path: '/branches', icon: GitBranch, roles: ['Admin', 'SystemAdmin'] },
-  { label: 'Users', path: '/users', icon: Shield, roles: ['Admin', 'SystemAdmin'] },
+  { label: 'Settings', path: '/settings', icon: Settings, roles: ['Admin', 'SalonOwner'] },
+  { label: 'Branches', path: '/branches', icon: GitBranch, roles: ['Admin', 'SalonOwner'] },
+  { label: 'Users', path: '/users', icon: Shield, roles: ['Admin', 'SalonOwner'] },
 ]
 
 const DEFAULT_TEMPLATE = 'Hi {customerName}, reminder: your {service} appointment is on {date} at {time} with {employeeName} at {salonName}. Reply STOP to opt out.'

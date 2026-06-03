@@ -184,6 +184,65 @@ export interface UserAdminItem {
   createdAt: string
 }
 
+export type PurchaseStatus = 'Draft' | 'Received' | 'Cancelled'
+
+export interface Purchase {
+  id: Id
+  purchaseNumber: string
+  supplierId?: Id | null
+  supplierName?: string | null
+  purchaseDate: string
+  status: PurchaseStatus
+  totalAmount: number
+  amountPaid: number
+  notes?: string | null
+  createdAt: string
+}
+
+export interface PurchaseItem {
+  id: Id
+  purchaseId: Id
+  productId: Id
+  description: string
+  quantity: number
+  unitCost: number
+  lineTotal: number
+}
+
+export interface Expense {
+  id: Id
+  expenseNumber: string
+  category: string
+  description: string
+  amount: number
+  expenseDate: string
+  paymentMethod: string
+  reference?: string | null
+  createdAt: string
+}
+
+export interface SuperAdminStats {
+  totalTenants: number
+  activeTenants: number
+  totalBranches: number
+  totalUsers: number
+}
+
+export interface TenantProvisionResponse {
+  tenantId: Id
+  tenantName: string
+  branchId: Id
+  adminUsername: string
+  tempPassword: string
+}
+
+export interface Supplier {
+  id: Id
+  name: string
+  contactPerson?: string | null
+  phone?: string | null
+}
+
 export interface DashboardKpis {
   todaysAppointments: number
   todaysRevenue: number

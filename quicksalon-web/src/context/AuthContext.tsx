@@ -9,6 +9,7 @@ interface AuthState {
   tenantName: string
   branchName: string
   roles: string[]
+  isSuperAdmin: boolean
   hasAnyRole: (...requiredRoles: string[]) => boolean
   login: (username: string, password: string) => Promise<void>
   logout: () => void
@@ -34,10 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(p)
       localStorage.setItem('qs_profile', JSON.stringify(p))
     }).catch(() => {
-      setToken('')
-      setTokenValue('')
-      setProfile(null)
-      localStorage.removeItem('qs_profile')
+      // Only sign out if there is no cached profile — a transient /me
+      // failure (e.g. server restart) must not wipe a valid session.
+      const cached = localStorage.getItem('qs_profile')
+      if (!cached) {
+        setToken('')
+        setTokenValue('')
+        setProfile(null)
+      }
     })
   }, [tokenValue])
 
@@ -48,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     tenantName: profile?.tenantName ?? 'Salon Dashboard',
     branchName: profile?.branchName ?? 'Main Branch',
     roles: profile?.roles ?? [],
+    isSuperAdmin: (profile?.roles ?? []).map(r => r.toLowerCase()).includes('systemadmin'),
     hasAnyRole: (...requiredRoles: string[]) => {
       const current = (profile?.roles ?? []).map((r) => r.toLowerCase())
       return requiredRoles.some((r) => current.includes(r.toLowerCase()))

@@ -94,3 +94,48 @@ public record UserAdminRequest(
     string? Password);
 
 public record StatusToggleRequest(bool IsActive);
+
+public record TenantProvisionRequest(
+    string Name,
+    string Slug,
+    string? ContactEmail,
+    string? Phone,
+    string? Address,
+    string AdminUsername,
+    string AdminFullName,
+    string? AdminPassword);
+
+public record TenantProvisionResponse(
+    Guid TenantId,
+    string TenantName,
+    Guid BranchId,
+    string AdminUsername,
+    string TempPassword);
+
+public record PurchaseRequest(
+    Guid? SupplierId,
+    string? SupplierName,
+    DateOnly PurchaseDate,
+    string? Notes);
+
+public record PurchaseItemRequest(
+    Guid ProductId,
+    string Description,
+    int Quantity,
+    decimal UnitCost);
+
+public record PurchaseStatusRequest(string Status);
+
+public record ExpenseRequest(
+    string Category,
+    string Description,
+    decimal Amount,
+    DateOnly ExpenseDate,
+    string PaymentMethod,
+    string? Reference);
+
+public record SuperAdminStatsResponse(
+    int TotalTenants,
+    int ActiveTenants,
+    int TotalBranches,
+    int TotalUsers);

@@ -118,7 +118,21 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Never cache index.html so the browser always fetches the latest
+        // entry-point, which references the correct hashed JS/CSS bundles.
+        var file = ctx.File.Name;
+        if (file.Equals("index.html", StringComparison.OrdinalIgnoreCase))
+        {
+            ctx.Context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            ctx.Context.Response.Headers["Pragma"] = "no-cache";
+            ctx.Context.Response.Headers["Expires"] = "0";
+        }
+    }
+});
 
 app.UseCors("frontend");
 app.UseAuthentication();
@@ -126,7 +140,25 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
-app.MapFallbackToFile("index.html");
+// Fallback: serve index.html for all unmatched routes (SPA routing)
+app.MapGet("/{**path}", async context =>
+{
+    var path = context.Request.Path.Value ?? "";
+    if (!path.StartsWith("/api") && !path.StartsWith("/assets"))
+    {
+        context.Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+        context.Response.Headers["Pragma"] = "no-cache";
+        context.Response.Headers["Expires"] = "0";
+        context.Response.ContentType = "text/html";
+        var wwwroot = Path.Combine(AppContext.BaseDirectory, "wwwroot", "index.html");
+        if (File.Exists(wwwroot))
+        {
+            await context.Response.SendFileAsync(wwwroot);
+            return;
+        }
+    }
+    context.Response.StatusCode = 404;
+}).ExcludeFromDescription();
 
 try
 {

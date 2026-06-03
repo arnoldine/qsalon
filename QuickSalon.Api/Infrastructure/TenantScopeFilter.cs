@@ -7,6 +7,10 @@ public class TenantScopeFilter(ICurrentTenant currentTenant) : IActionFilter
 {
     public void OnActionExecuting(ActionExecutingContext context)
     {
+        // SystemAdmin operates platform-wide — exempt from tenant scope check
+        if (context.HttpContext.User.IsInRole("SystemAdmin"))
+            return;
+
         if (currentTenant.TenantId == Guid.Empty || currentTenant.BranchId == Guid.Empty)
         {
             context.Result = new UnauthorizedObjectResult(new

@@ -1,0 +1,10 @@
+**/.git
+**/.claude
+**/node_modules
+**/dist
+QuickSalon.Api/bin
+QuickSalon.Api/obj
+quicksalon-web/.env*
+**/*.user
+**/*.suo
+**/Thumbs.db

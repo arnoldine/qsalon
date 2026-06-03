@@ -386,6 +386,74 @@ public class Commission : BranchTenantEntityBase
     public decimal CommissionAmount { get; set; }
 }
 
+public enum PurchaseStatus { Draft, Received, Cancelled }
+
+public class Purchase : BranchTenantEntityBase
+{
+    [MaxLength(32)]
+    public required string PurchaseNumber { get; set; }
+
+    public Guid? SupplierId { get; set; }
+
+    [MaxLength(150)]
+    public string? SupplierName { get; set; }
+
+    public DateOnly PurchaseDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    public PurchaseStatus Status { get; set; } = PurchaseStatus.Draft;
+
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal TotalAmount { get; set; }
+
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal AmountPaid { get; set; }
+
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+}
+
+public class PurchaseItem : BranchTenantEntityBase
+{
+    public Guid PurchaseId { get; set; }
+    public Guid ProductId { get; set; }
+
+    [MaxLength(150)]
+    public required string Description { get; set; }
+
+    public int Quantity { get; set; }
+
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal UnitCost { get; set; }
+
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal LineTotal { get; set; }
+}
+
+public class Expense : BranchTenantEntityBase
+{
+    [MaxLength(32)]
+    public required string ExpenseNumber { get; set; }
+
+    [MaxLength(100)]
+    public required string Category { get; set; }
+
+    [MaxLength(250)]
+    public required string Description { get; set; }
+
+    [Column(TypeName = "numeric(12,2)")]
+    public decimal Amount { get; set; }
+
+    public DateOnly ExpenseDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow);
+
+    [MaxLength(40)]
+    public string PaymentMethod { get; set; } = "Cash";
+
+    [MaxLength(200)]
+    public string? Reference { get; set; }
+
+    public Guid? RecordedByUserId { get; set; }
+}
+
 public class AuditLog : TenantEntityBase
 {
     public Guid? UserId { get; set; }

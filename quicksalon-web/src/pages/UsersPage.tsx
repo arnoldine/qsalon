@@ -8,7 +8,8 @@ import { useToast } from '../context/ToastContext'
 import { api } from '../lib/api'
 import type { BranchAdminItem, TenantAdminItem, UserAdminItem } from '../types'
 
-const roleOptions = ['Admin', 'SystemAdmin', 'SalonOwner', 'BranchManager', 'Receptionist', 'Cashier', 'InventoryOfficer', 'Stylist', 'Beautician']
+// SystemAdmin is a platform-level role — never assign to tenant users
+const roleOptions = ['Admin', 'SalonOwner', 'BranchManager', 'Receptionist', 'Cashier', 'InventoryOfficer', 'Stylist', 'Beautician']
 
 const initialForm = {
   tenantId: '',

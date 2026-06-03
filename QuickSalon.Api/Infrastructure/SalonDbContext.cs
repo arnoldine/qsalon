@@ -27,6 +27,9 @@ public class SalonDbContext(DbContextOptions<SalonDbContext> options, ICurrentTe
     public DbSet<Product> Products => Set<Product>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
     public DbSet<Commission> Commissions => Set<Commission>();
+    public DbSet<Purchase> Purchases => Set<Purchase>();
+    public DbSet<PurchaseItem> PurchaseItems => Set<PurchaseItem>();
+    public DbSet<Expense> Expenses => Set<Expense>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,6 +50,8 @@ public class SalonDbContext(DbContextOptions<SalonDbContext> options, ICurrentTe
         modelBuilder.Entity<Appointment>().HasIndex(x => new { x.TenantId, x.BranchId, x.AppointmentNumber }).IsUnique();
         modelBuilder.Entity<Invoice>().HasIndex(x => new { x.TenantId, x.BranchId, x.InvoiceNumber }).IsUnique();
         modelBuilder.Entity<Product>().HasIndex(x => new { x.TenantId, x.BranchId, x.SKU }).IsUnique();
+        modelBuilder.Entity<Purchase>().HasIndex(x => new { x.TenantId, x.BranchId, x.PurchaseNumber }).IsUnique();
+        modelBuilder.Entity<Expense>().HasIndex(x => new { x.TenantId, x.BranchId, x.ExpenseNumber }).IsUnique();
 
         ConfigureTenantScopedFilters(modelBuilder);
     }

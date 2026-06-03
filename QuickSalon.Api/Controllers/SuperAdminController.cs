@@ -47,6 +47,17 @@ public class SuperAdminController(
         return Ok(tenants);
     }
 
+    [HttpGet("stats")]
+    public async Task<ActionResult<SuperAdminStatsResponse>> GetStats(CancellationToken cancellationToken)
+    {
+        var totalTenants = await db.Tenants.CountAsync(cancellationToken);
+        var activeTenants = await db.Tenants.CountAsync(x => x.IsActive, cancellationToken);
+        var totalBranches = await db.Branches.IgnoreQueryFilters().CountAsync(cancellationToken);
+        var totalUsers = await db.Users.IgnoreQueryFilters()
+            .CountAsync(x => x.TenantId != Guid.Empty, cancellationToken);
+        return Ok(new SuperAdminStatsResponse(totalTenants, activeTenants, totalBranches, totalUsers));
+    }
+
     [HttpPost("tenants")]
     public async Task<ActionResult<object>> CreateTenant([FromBody] TenantAdminRequest request, CancellationToken cancellationToken)
     {
@@ -72,6 +83,86 @@ public class SuperAdminController(
         await audit.LogAsync("Create", nameof(Tenant), entity.Id.ToString(), request, cancellationToken);
 
         return Ok(entity);
+    }
+
+    /// <summary>
+    /// Creates a tenant and fully provisions its workspace:
+    /// default branch, settings, all standard roles, and an admin user.
+    /// Returns the admin credentials so the salon owner can log in immediately.
+    /// </summary>
+    [HttpPost("tenants/provision")]
+    public async Task<ActionResult<TenantProvisionResponse>> ProvisionTenant(
+        [FromBody] TenantProvisionRequest request, CancellationToken cancellationToken)
+    {
+        var slug = request.Slug.Trim().ToLowerInvariant();
+        if (await db.Tenants.AnyAsync(x => x.Slug == slug, cancellationToken))
+            return BadRequest(new { message = "Tenant slug already exists." });
+
+        if (await db.Users.IgnoreQueryFilters().AnyAsync(x => x.Username == request.AdminUsername, cancellationToken))
+            return BadRequest(new { message = "Admin username already taken." });
+
+        // 1. Tenant
+        var tenant = new Tenant
+        {
+            Name = request.Name.Trim(),
+            Slug = slug,
+            ContactEmail = request.ContactEmail,
+            Phone = request.Phone,
+            Address = request.Address,
+            IsActive = true
+        };
+        db.Tenants.Add(tenant);
+
+        // 2. Default branch
+        var branch = new Branch { TenantId = tenant.Id, Name = "Main Branch", Address = request.Address };
+        db.Branches.Add(branch);
+
+        // 3. Default settings
+        db.TenantSettings.Add(new TenantSetting
+        {
+            TenantId = tenant.Id,
+            SalonName = request.Name.Trim(),
+            Email = request.ContactEmail,
+            Phone = request.Phone,
+            Address = request.Address,
+            OpeningHours = "08:00 - 20:00",
+            DefaultCurrency = "GHS",
+            TaxRate = 0m,
+            ReceiptFooter = $"Thank you for choosing {request.Name.Trim()}",
+            EnableAppointmentReminders = false
+        });
+
+        // 4. Standard roles
+        var roleNames = new[] { "Admin", "SalonOwner", "BranchManager", "Receptionist", "Stylist", "Beautician", "Cashier", "InventoryOfficer" };
+        var roles = roleNames.Select(n => new Role { TenantId = tenant.Id, Name = n, Description = $"{n} role" }).ToList();
+        db.Roles.AddRange(roles);
+
+        // 5. Admin user
+        var tempPassword = string.IsNullOrWhiteSpace(request.AdminPassword)
+            ? $"Salon@{Random.Shared.Next(1000, 9999)}"
+            : request.AdminPassword;
+
+        var adminUser = new AppUser
+        {
+            TenantId = tenant.Id,
+            BranchId = branch.Id,
+            FullName = request.AdminFullName.Trim(),
+            Username = request.AdminUsername.Trim(),
+            Email = request.ContactEmail,
+            PasswordHash = string.Empty,
+            IsActive = true
+        };
+        adminUser.PasswordHash = passwordHasher.HashPassword(adminUser, tempPassword);
+        db.Users.Add(adminUser);
+
+        var adminRole = roles.First(r => r.Name == "Admin");
+        db.UserRoles.Add(new UserRole { UserId = adminUser.Id, RoleId = adminRole.Id });
+
+        await db.SaveChangesAsync(cancellationToken);
+        await audit.LogAsync("Provision", nameof(Tenant), tenant.Id.ToString(),
+            new { request.Name, request.AdminUsername }, cancellationToken);
+
+        return Ok(new TenantProvisionResponse(tenant.Id, tenant.Name, branch.Id, adminUser.Username, tempPassword));
     }
 
     [HttpPut("tenants/{id:guid}")]
@@ -315,34 +406,47 @@ public class SuperAdminController(
         }));
     }
 
+    private static readonly string[] StandardTenantRoles =
+    [
+        "Admin", "SalonOwner", "BranchManager", "Receptionist",
+        "Stylist", "Beautician", "Cashier", "InventoryOfficer"
+    ];
+
+    private async Task<Role?> ResolveOrCreateRoleAsync(Guid tenantId, string roleName, CancellationToken cancellationToken)
+    {
+        var role = await db.Roles.IgnoreQueryFilters()
+            .FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Name == roleName, cancellationToken);
+
+        if (role is null && StandardTenantRoles.Contains(roleName))
+        {
+            role = new Role { TenantId = tenantId, Name = roleName, Description = $"{roleName} role" };
+            db.Roles.Add(role);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        return role;
+    }
+
     [HttpPost("users")]
     public async Task<ActionResult<object>> CreateUser([FromBody] UserAdminRequest request, CancellationToken cancellationToken)
     {
         var tenant = await db.Tenants.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.TenantId, cancellationToken);
         if (tenant is null)
-        {
             return BadRequest(new { message = "Tenant not found." });
-        }
 
-        var branch = await db.Branches.IgnoreQueryFilters().AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.BranchId, cancellationToken);
+        var branch = await db.Branches.IgnoreQueryFilters().AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == request.BranchId, cancellationToken);
         if (branch is null || branch.TenantId != request.TenantId)
-        {
             return BadRequest(new { message = "Branch not found for selected tenant." });
-        }
 
-        var duplicateUsername = await db.Users.IgnoreQueryFilters().AnyAsync(x => x.Username == request.Username, cancellationToken);
+        var duplicateUsername = await db.Users.IgnoreQueryFilters()
+            .AnyAsync(x => x.Username == request.Username, cancellationToken);
         if (duplicateUsername)
-        {
             return BadRequest(new { message = "Username already exists." });
-        }
 
-        var role = await db.Roles.IgnoreQueryFilters().FirstOrDefaultAsync(
-            x => x.TenantId == request.TenantId && x.Name == request.Role,
-            cancellationToken);
+        var role = await ResolveOrCreateRoleAsync(request.TenantId, request.Role, cancellationToken);
         if (role is null)
-        {
-            return BadRequest(new { message = "Role not found in tenant." });
-        }
+            return BadRequest(new { message = $"'{request.Role}' is not a recognised tenant role." });
 
         var user = new AppUser
         {
@@ -386,13 +490,9 @@ public class SuperAdminController(
             return BadRequest(new { message = "Username already exists." });
         }
 
-        var role = await db.Roles.IgnoreQueryFilters().FirstOrDefaultAsync(
-            x => x.TenantId == request.TenantId && x.Name == request.Role,
-            cancellationToken);
+        var role = await ResolveOrCreateRoleAsync(request.TenantId, request.Role, cancellationToken);
         if (role is null)
-        {
-            return BadRequest(new { message = "Role not found in tenant." });
-        }
+            return BadRequest(new { message = $"'{request.Role}' is not a recognised tenant role." });
 
         user.TenantId = request.TenantId;
         user.BranchId = request.BranchId;

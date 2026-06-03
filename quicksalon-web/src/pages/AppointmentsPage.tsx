@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CalendarDays, ClipboardList } from 'lucide-react'
+import { CalendarDays, CalendarPlus, ClipboardList } from 'lucide-react'
 import { AppointmentCalendar } from '../components/AppointmentCalendar'
 import { AppointmentDetailDialog } from '../components/AppointmentDetailDialog'
 import { AppointmentStatusDialog } from '../components/AppointmentStatusDialog'
@@ -300,7 +300,7 @@ export function AppointmentsPage() {
               <button type="button" className={view === 'List' ? 'active' : ''} onClick={() => setView('List')}><ClipboardList size={16} /> List</button>
               <button type="button" className={view === 'Calendar' ? 'active' : ''} onClick={() => setView('Calendar')}><CalendarDays size={16} /> Calendar</button>
             </div>
-            <button type="button" onClick={openCreateDialog}>New Appointment</button>
+            <button type="button" onClick={openCreateDialog}><CalendarPlus size={16} /> New Appointment</button>
           </>
         )}
       />
@@ -402,6 +402,11 @@ export function AppointmentsPage() {
       ) : (
         <AppointmentCalendar weekStart={weekStart} appointments={displayAppointments} onSelectAppointment={openDetailDialog} />
       )}
+
+      {/* FAB for mobile */}
+      <button className="fab" title="New Appointment" onClick={openCreateDialog}>
+        <CalendarPlus size={24} />
+      </button>
     </section>
   )
 }

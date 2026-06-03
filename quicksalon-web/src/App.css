@@ -1663,3 +1663,94 @@ textarea {
   .sa-sidebar-footer { flex-direction: row; margin-top: 0; }
   .sa-content { padding: 1rem; }
 }
+
+/* === TOUCH-FRIENDLY BUTTONS === */
+button, .btn {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1rem;
+}
+
+/* === FAB (Floating Action Button) === */
+.fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  z-index: 100;
+  cursor: pointer;
+  border: none;
+  font-size: 1.5rem;
+  padding: 0;
+  min-width: unset;
+  min-height: unset;
+}
+@media (max-width: 768px) {
+  .fab { display: flex; }
+}
+
+/* === RECEIPT / INVOICE PRINT === */
+
+/* Screen preview of receipt */
+.invoice-receipt {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.invoice-receipt h2 { font-size: 1rem; text-align: center; margin: 0.25rem 0; }
+.receipt-center { text-align: center; color: #555; font-size: 0.85rem; margin: 0.1rem 0; }
+.receipt-row { display: flex; justify-content: space-between; padding: 0.15rem 0; font-size: 0.82rem; }
+.receipt-row.bold { font-weight: 700; }
+.receipt-divider { border: none; border-top: 1px dashed #aaa; margin: 0.4rem 0; }
+.receipt-total-row { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.95rem; padding: 0.2rem 0; }
+.balance-due { color: #cc0000; font-weight: 700; }
+.balance-paid { color: #008800; font-weight: 700; }
+.receipt-footer { text-align: center; font-style: italic; font-size: 0.8rem; color: #666; margin-top: 0.5rem; }
+
+/* Print wrapper — hidden on screen, shown only when printing */
+.invoice-receipt-print-wrapper { display: none; }
+
+/* === PRINT === */
+@media print {
+  /* Hide everything except the receipt */
+  body > * { display: none !important; }
+  .invoice-receipt-print-wrapper { display: block !important; }
+
+  /* Receipt styling for print */
+  .invoice-receipt {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    width: 80mm;
+    max-width: 80mm;
+    margin: 0 auto;
+    padding: 4mm;
+    color: #000;
+    border: none;
+    border-radius: 0;
+  }
+
+  .invoice-receipt h2 { font-size: 14px; text-align: center; margin: 2mm 0; }
+  .invoice-receipt .receipt-center { text-align: center; color: #000; }
+  .invoice-receipt .receipt-row { display: flex; justify-content: space-between; }
+  .invoice-receipt .receipt-divider { border-top: 1px dashed #000; margin: 2mm 0; }
+  .invoice-receipt .receipt-total-row { font-weight: bold; font-size: 13px; }
+  .invoice-receipt .balance-due { color: #cc0000; font-weight: bold; }
+  .invoice-receipt .balance-paid { color: #006600; font-weight: bold; }
+}

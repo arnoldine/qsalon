@@ -1,3 +1,4 @@
+import { Pencil, Trash2, UserPlus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
@@ -92,7 +93,7 @@ export function EmployeesPage() {
 
   return (
     <section>
-      <PageHeader title="Staff" subtitle="Employee directory and commission setup" actions={<button onClick={() => { setSelectedEmployee(null); setEditMode(false); setFormOpen(true) }}>New Employee</button>} />
+      <PageHeader title="Staff" subtitle="Employee directory and commission setup" actions={<button onClick={() => { setSelectedEmployee(null); setEditMode(false); setFormOpen(true) }}><UserPlus size={16} /> New Employee</button>} />
 
       <EmployeeForm
         open={formOpen}
@@ -116,8 +117,8 @@ export function EmployeesPage() {
         actions={(
           <>
             <button type="button" className="secondary-button" onClick={() => setDetailOpen(false)}>Close</button>
-            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }}>Edit</button>
-            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)}>Deactivate</button>
+            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }} title="Edit"><Pencil size={16} /> Edit</button>
+            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)} title="Deactivate"><Trash2 size={16} /> Deactivate</button>
           </>
         )}
       >

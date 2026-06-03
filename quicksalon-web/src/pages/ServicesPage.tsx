@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
@@ -81,13 +82,13 @@ export function ServicesPage() {
 
   return (
     <section>
-      <PageHeader title="Services" subtitle="Manage service catalog and categories" actions={<button onClick={() => { setSelectedService(null); setEditMode(false); setFormOpen(true) }}>New Service</button>} />
+      <PageHeader title="Services" subtitle="Manage service catalog and categories" actions={<button onClick={() => { setSelectedService(null); setEditMode(false); setFormOpen(true) }}><Plus size={16} /> New Service</button>} />
 
       <div className="panel form-grid" style={{ marginBottom: '1rem' }}>
         <h3>Create Category</h3>
         <form onSubmit={createCategory} className="toolbar">
           <FormField label="Name"><input value={catName} onChange={(e) => setCatName(e.target.value)} required /></FormField>
-          <button type="submit">Add Category</button>
+          <button type="submit"><Plus size={16} /> Add Category</button>
         </form>
       </div>
 

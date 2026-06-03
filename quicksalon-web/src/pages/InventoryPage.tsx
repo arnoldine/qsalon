@@ -1,3 +1,4 @@
+import { ArrowUpDown, PackagePlus, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
@@ -116,7 +117,7 @@ export function InventoryPage() {
         actions={(
           <>
             <button type="button" className="secondary-button" onClick={() => setSupplierOpen(true)}>New Supplier</button>
-            <button type="button" onClick={() => { setSelectedProduct(null); setEditMode(false); setFormOpen(true) }}>New Product</button>
+            <button type="button" onClick={() => { setSelectedProduct(null); setEditMode(false); setFormOpen(true) }}><PackagePlus size={16} /> New Product</button>
           </>
         )}
       />
@@ -148,9 +149,9 @@ export function InventoryPage() {
         actions={(
           <>
             <button type="button" className="secondary-button" onClick={() => setDetailOpen(false)}>Close</button>
-            <button type="button" onClick={() => setStockOpen(true)}>+/-</button>
-            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }}>Edit</button>
-            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)}>Delete</button>
+            <button type="button" onClick={() => setStockOpen(true)} title="Adjust Stock"><ArrowUpDown size={16} /> Adjust Stock</button>
+            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }} title="Edit"><Pencil size={16} /> Edit</button>
+            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)} title="Delete"><Trash2 size={16} /> Delete</button>
           </>
         )}
       >

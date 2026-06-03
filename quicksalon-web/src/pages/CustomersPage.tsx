@@ -1,3 +1,4 @@
+import { Pencil, Search, Trash2, UserPlus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
@@ -101,11 +102,11 @@ export function CustomersPage() {
       <PageHeader
         title="Customers"
         subtitle="Search-first customer management with loyalty and visit history"
-        actions={<button onClick={() => { setSelectedCustomer(null); setEditMode(false); setFormOpen(true) }}>New Customer</button>}
+        actions={<button onClick={() => { setSelectedCustomer(null); setEditMode(false); setFormOpen(true) }}><UserPlus size={16} /> New Customer</button>}
       />
       <div className="toolbar">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search customers" />
-        <button onClick={() => load(1)}>Search</button>
+        <button onClick={() => load(1)}><Search size={16} /> Search</button>
       </div>
 
       <CustomerForm
@@ -130,8 +131,8 @@ export function CustomersPage() {
         actions={(
           <>
             <button type="button" className="secondary-button" onClick={() => setDetailOpen(false)}>Close</button>
-            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }}>Edit</button>
-            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)}>Delete</button>
+            <button type="button" onClick={() => { setEditMode(true); setFormOpen(true) }} title="Edit"><Pencil size={16} /> Edit</button>
+            <button type="button" className="danger-button" onClick={() => setConfirmOpen(true)} title="Delete"><Trash2 size={16} /> Delete</button>
           </>
         )}
       >

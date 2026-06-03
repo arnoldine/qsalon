@@ -1,3 +1,4 @@
+import { Download } from 'lucide-react'
 import { useState } from 'react'
 import { PageHeader } from '../components/PageHeader'
 import { SkeletonRow } from '../components/Skeleton'
@@ -63,7 +64,7 @@ export function ReportsPage() {
           <div key={type} className="toolbar">
             <strong>{type}</strong>
             {formats.map((format) => (
-              <button key={format} onClick={() => exportReport(type, format)}>{format.toUpperCase()}</button>
+              <button key={format} onClick={() => exportReport(type, format)}><Download size={16} /> {format.toUpperCase()}</button>
             ))}
           </div>
         ))}

@@ -1,3 +1,4 @@
+import { Save } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { FormField } from '../components/FormField'
 import { PageHeader } from '../components/PageHeader'
@@ -126,7 +127,7 @@ export function SettingsPage() {
           <input type="checkbox" checked={settings.enableAppointmentReminders} onChange={(e) => setSettings((x) => ({ ...x, enableAppointmentReminders: e.target.checked }))} disabled={!canManage} />
           <span>Enable appointment reminders</span>
         </label>
-        <button type="submit" disabled={!canManage}>Save Settings</button>
+        <button type="submit" disabled={!canManage}><Save size={16} /> Save Settings</button>
       </form>
 
       <section className="panel settings-collapsible">

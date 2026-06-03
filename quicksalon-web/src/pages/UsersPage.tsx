@@ -1,3 +1,4 @@
+import { UserPlus } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
@@ -172,7 +173,7 @@ export function UsersPage() {
 
   return (
     <section>
-      <PageHeader title="User Management" subtitle="Provision and maintain branch users and role assignment" actions={<button type="button" onClick={() => { resetForm(); setFormOpen(true) }}>New User</button>} />
+      <PageHeader title="User Management" subtitle="Provision and maintain branch users and role assignment" actions={<button type="button" onClick={() => { resetForm(); setFormOpen(true) }}><UserPlus size={16} /> New User</button>} />
 
       <div className="toolbar">
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name, username, email" />

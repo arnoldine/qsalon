@@ -1,8 +1,11 @@
+import { Ban, CreditCard, FilePlus, Plus, Printer } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { ConfirmDialog } from '../components/ConfirmDialog'
 import { DataTable } from '../components/DataTable'
 import { InvoiceItemForm } from '../components/forms/InvoiceItemForm'
 import { FormField } from '../components/FormField'
+import { InvoicePreviewDialog } from '../components/InvoicePreviewDialog'
+import type { InvoiceReceiptProps } from '../components/InvoiceReceipt'
 import { PageHeader } from '../components/PageHeader'
 import { PaymentDialog } from '../components/PaymentDialog'
 import { StatusBadge } from '../components/StatusBadge'
@@ -64,6 +67,7 @@ export function PosPage() {
   const [itemFormOpen, setItemFormOpen] = useState(false)
   const [voidConfirmOpen, setVoidConfirmOpen] = useState(false)
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false)
+  const [printOpen, setPrintOpen] = useState(false)
 
   async function load() {
     try {
@@ -174,6 +178,28 @@ export function PosPage() {
   const subtotal = invoiceDetails?.items.reduce((sum, item) => sum + item.lineTotal, 0) ?? 0
   const tax = subtotal * ((settings.taxRate ?? 0) / 100)
   const total = subtotal + tax
+  const amountPaid = selected?.amountPaid ?? 0
+  const balance = Math.max(total - amountPaid, 0)
+
+  const receiptProps: InvoiceReceiptProps = {
+    invoiceNumber: selected?.invoiceNumber ?? '',
+    date: new Date().toLocaleDateString(),
+    items: invoiceDetails?.items ?? [],
+    payments: invoiceDetails?.payments ?? [],
+    subtotal,
+    tax,
+    taxRate: settings.taxRate ?? 0,
+    total,
+    amountPaid,
+    balance,
+    currency: settings.defaultCurrency || 'GHS',
+    salonName: settings.salonName || 'Salon',
+    salonPhone: settings.phone,
+    salonAddress: settings.address,
+    salonEmail: settings.email,
+    receiptFooter: settings.receiptFooter,
+    status: selected?.status ?? '',
+  }
 
   const receipt = (
     <div className="receipt-preview">
@@ -209,7 +235,7 @@ export function PosPage() {
                 {customers.map((c) => <option key={c.id} value={c.id}>{c.firstName} {c.lastName}</option>)}
               </select>
             </FormField>
-            <button onClick={createInvoice}>New Invoice</button>
+            <button onClick={createInvoice}><FilePlus size={16} /> New Invoice</button>
             <FormField label="Active Invoice">
               <select value={invoiceId} onChange={(e) => setInvoiceId(e.target.value)}>
                 <option value="">Select</option>
@@ -244,9 +270,10 @@ export function PosPage() {
           </div>
 
           <div className="toolbar">
-            <button type="button" className="secondary-button" onClick={() => setItemFormOpen(true)}>Add Item</button>
-            <button type="button" onClick={() => setPaymentOpen(true)}>Process Payment</button>
-            <button type="button" className="danger-button" onClick={() => setVoidConfirmOpen(true)}>Void Invoice</button>
+            <button type="button" className="secondary-button" onClick={() => setItemFormOpen(true)}><Plus size={16} /> Add Item</button>
+            <button type="button" onClick={() => setPaymentOpen(true)}><CreditCard size={16} /> Process Payment</button>
+            <button type="button" className="secondary-button" onClick={() => setPrintOpen(true)}><Printer size={16} /> Print Receipt</button>
+            <button type="button" className="danger-button" onClick={() => setVoidConfirmOpen(true)}><Ban size={16} /> Void Invoice</button>
           </div>
 
           <DataTable headers={['Invoice', 'Status', 'Total', 'Paid']} rows={invoices.map((i) => [i.invoiceNumber, i.status, i.totalAmount, i.amountPaid])} />
@@ -260,6 +287,11 @@ export function PosPage() {
       <div className={`receipt-mobile-sheet${mobilePreviewOpen ? ' open' : ''}`}>
         {receipt}
       </div>
+
+      {/* FAB for mobile */}
+      <button className="fab" title="New Invoice" onClick={() => void createInvoice()}>
+        <Plus size={24} />
+      </button>
 
       <InvoiceItemForm
         open={itemFormOpen}
@@ -280,11 +312,17 @@ export function PosPage() {
         tax={tax}
         onClose={() => setPaymentOpen(false)}
         onConfirm={pay}
-        onPrint={() => window.print()}
+        onPrint={() => { setPaymentOpen(false); setPrintOpen(true) }}
         onNewSale={() => {
           setPaymentOpen(false)
           void createInvoice()
         }}
+      />
+
+      <InvoicePreviewDialog
+        open={printOpen}
+        onClose={() => setPrintOpen(false)}
+        receipt={receiptProps}
       />
 
       <ConfirmDialog

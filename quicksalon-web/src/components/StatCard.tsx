@@ -4,13 +4,14 @@ interface StatCardProps {
   label: string
   value: string | number
   icon?: ReactNode
-  color?: string   // CSS color for icon bg
-  trend?: string   // e.g. "+12% vs yesterday"
+  color?: string
+  trend?: string
+  onClick?: () => void
 }
 
-export function StatCard({ label, value, icon, color, trend }: StatCardProps) {
+export function StatCard({ label, value, icon, color, trend, onClick }: StatCardProps) {
   return (
-    <article className="stat-card">
+    <article className="stat-card" onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       <div className="stat-card-head">
         <h3>{label}</h3>
         {icon ? (

@@ -24,17 +24,20 @@ export function EmployeesPage() {
 
   async function load() {
     try {
-      const [employeeData, appointmentData, commissionData] = await Promise.all([
+      const [employeeData, appointmentData] = await Promise.all([
         api<Employee[]>('/api/employees'),
         api<Appointment[]>('/api/appointments'),
-        api<Array<{ employee: string; commissionAmount: number }>>('/api/commissions?period=monthly'),
       ])
-      setEmployees(employeeData)
-      setAppointments(appointmentData)
-      setMonthlyCommissions(commissionData)
+      setEmployees(employeeData ?? [])
+      setAppointments(appointmentData ?? [])
     } catch {
       showToast('Failed to load employees.', 'error')
     }
+    // Commissions are best-effort — don't block the page if this fails
+    try {
+      const commissionData = await api<Array<{ employee: string; commissionAmount: number }>>('/api/commissions?period=monthly')
+      setMonthlyCommissions(commissionData ?? [])
+    } catch { /* non-critical */ }
   }
 
   useEffect(() => {

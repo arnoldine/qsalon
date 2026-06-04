@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { CalendarDays, Clock, DollarSign, UserCheck, Users } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { PageHeader } from '../components/PageHeader'
 import { SkeletonCard } from '../components/Skeleton'
@@ -71,11 +72,11 @@ export function DashboardPage() {
     <section>
       <PageHeader title="Salon Dashboard" subtitle="Track daily operations, payments, staff activity, and low-stock alerts" />
       <div className="stats-grid">
-        <StatCard label="Today's Appointments" value={data.todaysAppointments} />
-        <StatCard label="Today's Revenue" value={formatMoney(data.todaysRevenue)} />
-        <StatCard label="Pending Payments" value={formatMoney(data.pendingPayments)} />
-        <StatCard label="Active Customers" value={data.activeCustomers} />
-        <StatCard label="Staff On Duty" value={data.staffOnDuty} />
+        <StatCard label="Today's Appointments" value={data.todaysAppointments} icon={<CalendarDays size={18} />} color="#2563EB" />
+        <StatCard label="Today's Revenue" value={formatMoney(data.todaysRevenue)} icon={<DollarSign size={18} />} color="#059669" />
+        <StatCard label="Pending Payments" value={formatMoney(data.pendingPayments)} icon={<Clock size={18} />} color="#D97706" />
+        <StatCard label="Active Customers" value={data.activeCustomers} icon={<Users size={18} />} color="#7C3AED" />
+        <StatCard label="Staff On Duty" value={data.staffOnDuty} icon={<UserCheck size={18} />} color="#0D9488" />
       </div>
 
       <div className="split-grid">
@@ -106,11 +107,11 @@ export function DashboardPage() {
           <h3>Revenue Trend (Last 7 Days)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={revenueTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ead8c5" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E5EA" />
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey="revenue" stroke="#b2592f" fill="#b2592f" fillOpacity={0.2} />
+              <Area type="monotone" dataKey="revenue" stroke="#C4622D" fill="#C4622D" fillOpacity={0.2} />
             </AreaChart>
           </ResponsiveContainer>
         </article>

@@ -37,6 +37,8 @@ services:
       Jwt__Issuer: QuickSalon
       Jwt__Audience: QuickSalonClients
       App__CorsOrigin: http://192.168.100.10
+      App__AllowedOrigins__0: http://192.168.100.10
+      App__AllowedOrigins__1: http://100.113.248.248
     ports:
       - "80:8080"
     networks:

@@ -79,7 +79,12 @@ export function EmployeeForm({ open, mode, initial, onClose, onSave }: EmployeeF
     >
       <form id="employee-form" onSubmit={handleSubmit} className="form-grid">
         <FormField label="Name"><input value={name} onChange={(e) => setName(e.target.value)} className={showErrors && missing.name ? 'input-invalid' : ''} /></FormField>
-        <FormField label="Role"><input value={role} onChange={(e) => setRole(e.target.value)} className={showErrors && missing.role ? 'input-invalid' : ''} /></FormField>
+        <FormField label="Role">
+          <select value={role} onChange={(e) => setRole(e.target.value)} className={showErrors && missing.role ? 'input-invalid' : ''}>
+            <option value="">— Select Role —</option>
+            {['Stylist','Beautician','Receptionist','Cashier','InventoryOfficer','BranchManager','SalonOwner','Admin'].map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+        </FormField>
         <FormField label="Phone"><input value={phone} onChange={(e) => setPhone(e.target.value)} /></FormField>
         <FormField label="Commission Rate %"><input type="number" value={commissionRate} onChange={(e) => setCommissionRate(Number(e.target.value))} /></FormField>
         <FormField label="Status">

@@ -119,8 +119,17 @@ export function SettingsPage() {
         <FormField label="Phone"><input value={settings.phone ?? ''} onChange={(e) => setSettings((x) => ({ ...x, phone: e.target.value }))} disabled={!canManage} /></FormField>
         <FormField label="Email"><input value={settings.email ?? ''} onChange={(e) => setSettings((x) => ({ ...x, email: e.target.value }))} disabled={!canManage} /></FormField>
         <FormField label="Address"><input value={settings.address ?? ''} onChange={(e) => setSettings((x) => ({ ...x, address: e.target.value }))} disabled={!canManage} /></FormField>
-        <FormField label="Opening Hours"><input value={settings.openingHours ?? ''} onChange={(e) => setSettings((x) => ({ ...x, openingHours: e.target.value }))} disabled={!canManage} /></FormField>
-        <FormField label="Currency"><input value={settings.defaultCurrency} onChange={(e) => setSettings((x) => ({ ...x, defaultCurrency: e.target.value.toUpperCase() }))} disabled={!canManage} /></FormField>
+        <FormField label="Opening Hours">
+          <select value={settings.openingHours ?? ''} onChange={(e) => setSettings((x) => ({ ...x, openingHours: e.target.value }))} disabled={!canManage}>
+            <option value="">— Select Hours —</option>
+            {['06:00 - 18:00','07:00 - 19:00','08:00 - 18:00','08:00 - 20:00','08:00 - 22:00','09:00 - 17:00','09:00 - 18:00','09:00 - 20:00','09:00 - 21:00','10:00 - 20:00','10:00 - 22:00','24 Hours'].map(h => <option key={h} value={h}>{h}</option>)}
+          </select>
+        </FormField>
+        <FormField label="Currency">
+          <select value={settings.defaultCurrency} onChange={(e) => setSettings((x) => ({ ...x, defaultCurrency: e.target.value }))} disabled={!canManage}>
+            {['GHS','USD','EUR','GBP','NGN','KES','ZAR','UGX','TZS','RWF','XOF','CAD','AUD','INR','AED'].map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </FormField>
         <FormField label="Tax/VAT %"><input type="number" value={settings.taxRate} onChange={(e) => setSettings((x) => ({ ...x, taxRate: Number(e.target.value) }))} disabled={!canManage} /></FormField>
         <FormField label="Receipt Footer"><input value={settings.receiptFooter ?? ''} onChange={(e) => setSettings((x) => ({ ...x, receiptFooter: e.target.value }))} disabled={!canManage} /></FormField>
         <label className="checkbox-row">

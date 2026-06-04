@@ -34,16 +34,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     api<AuthProfile>('/api/auth/me').then((p) => {
       setProfile(p)
       localStorage.setItem('qs_profile', JSON.stringify(p))
-    }).catch(() => {
-      // Only sign out if there is no cached profile — a transient /me
-      // failure (e.g. server restart) must not wipe a valid session.
-      const cached = localStorage.getItem('qs_profile')
-      if (!cached) {
+    }).catch((err: unknown) => {
+      // Only hard-logout on a definitive 401 with no existing session at all.
+      // If we already have a profile in React state (e.g. just logged in) or in
+      // localStorage, keep the session — the server may be briefly unavailable
+      // or the /me endpoint has a transient issue (common on slow zrok tunnels).
+      const hasReactProfile = profile !== null
+      const hasCachedProfile = !!localStorage.getItem('qs_profile')
+      const isDefinitive401 = err instanceof Error && err.message.includes('401')
+      if (isDefinitive401 && !hasReactProfile && !hasCachedProfile) {
         setToken('')
         setTokenValue('')
         setProfile(null)
+        localStorage.removeItem('qs_profile')
       }
+      // Otherwise: swallow — user stays logged in, me endpoint refreshes on next nav
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokenValue])
 
   const value = useMemo<AuthState>(() => ({

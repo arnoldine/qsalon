@@ -75,6 +75,18 @@ public class DashboardController(SalonDbContext db, ICurrentTenant currentTenant
 
 public class ReportsController(SalonDbContext db, ICurrentTenant currentTenant) : BaseApiController(currentTenant)
 {
+    [HttpGet("/api/reports/{reportType}/preview")]
+    public async Task<ActionResult<object>> PreviewReport(string reportType, CancellationToken cancellationToken)
+    {
+        var data = await BuildReportRows(reportType, cancellationToken);
+        return Ok(new
+        {
+            rows = data.Take(500),
+            generatedAt = DateTime.UtcNow.ToString("o"),
+            totalRows = data.Count
+        });
+    }
+
     [HttpGet("/api/reports/{reportType}")]
     public async Task<ActionResult> GetReport(string reportType, [FromQuery] string format = "csv", CancellationToken cancellationToken = default)
     {
@@ -187,6 +199,24 @@ public class ReportsController(SalonDbContext db, ICurrentTenant currentTenant) 
                     ["SellingPrice"] = x.SellingPrice,
                     ["QuantityOnHand"] = x.QuantityOnHand,
                     ["ReorderLevel"] = x.ReorderLevel
+                }).ToList();
+            }
+
+            case "expenses":
+            {
+                var rows = await db.Expenses.AsNoTracking()
+                    .Where(x => x.BranchId == BranchId)
+                    .OrderByDescending(x => x.ExpenseDate)
+                    .ToListAsync(cancellationToken);
+                return rows.Select(x => new Dictionary<string, object>
+                {
+                    ["ExpenseNumber"] = x.ExpenseNumber,
+                    ["Date"]          = x.ExpenseDate.ToString(),
+                    ["Category"]      = x.Category,
+                    ["Description"]   = x.Description,
+                    ["Amount"]        = x.Amount,
+                    ["PaymentMethod"] = x.PaymentMethod,
+                    ["Reference"]     = x.Reference ?? string.Empty
                 }).ToList();
             }
 

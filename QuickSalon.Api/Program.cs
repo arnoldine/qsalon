@@ -157,16 +157,29 @@ app.MapFallbackToFile("index.html", new StaticFileOptions
     }
 });
 
-try
+// Retry DB migration/seed to handle sidecar startup race condition
+// (e.g. postgres sidecar may take 10-30s to accept connections)
 {
-    await SeedData.EnsureSeededAsync(app.Services);
-}
-catch (Exception ex)
-{
-    app.Logger.LogError(ex, "Database migration/seed failed during startup.");
-    if (app.Environment.IsDevelopment())
+    const int maxRetries = 12;
+    for (var attempt = 1; attempt <= maxRetries; attempt++)
     {
-        throw;
+        try
+        {
+            await SeedData.EnsureSeededAsync(app.Services);
+            app.Logger.LogInformation("Database migration/seed completed on attempt {Attempt}.", attempt);
+            break;
+        }
+        catch (Exception ex) when (attempt < maxRetries)
+        {
+            app.Logger.LogWarning("DB not ready (attempt {Attempt}/{Max}): {Message}. Retrying in 5s...",
+                attempt, maxRetries, ex.Message.Split('\n')[0]);
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogError(ex, "Database migration/seed failed after {Max} attempts.", maxRetries);
+            if (app.Environment.IsDevelopment()) throw;
+        }
     }
 }
 
